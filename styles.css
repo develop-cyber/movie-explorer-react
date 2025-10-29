@@ -1,0 +1,207 @@
+/* ===== Root theme variables ===== */
+:root{
+  --bg: #f4f6f8;
+  --panel: #ffffff;
+  --ink: #0f172a;
+  --muted: #6b7280;
+  --brand: #1f2f46;
+  --accent: #3b82f6;
+  --border: #e5e7eb;
+  --shadow: 0 8px 30px rgba(0,0,0,.06);
+}
+
+/* ===== Global reset & interaction defaults ===== */
+* { box-sizing: border-box; user-select: none; }
+
+/* ===== Page sizing reset ===== */
+html, body { height: 100%; margin: 0; }
+
+/* ===== Base body styles ===== */
+body{
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ===== Stage (scrollbar offset & pink reveal area) ===== */
+.stage{
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-right: 24px;
+  box-sizing: border-box;
+  --appw: 100%;
+  background: linear-gradient(
+    to right,
+    transparent 0 var(--appw),
+    #f7c9cf var(--appw) 100%
+  );
+}
+
+/* ===== Resizable application wrapper (controlled by --appw) ===== */
+.app-wrap{
+  width: var(--appw);
+  min-height: 100%;
+  transition: width 0.05s ease-out;
+  will-change: width;
+}
+
+/* ===== Page container (content max width) ===== */
+.container{
+  width: min(1200px, 92%);   
+  margin-inline: auto;
+}
+
+/* ===== Site header (navy band) ===== */
+.site-header{
+  position: relative;
+  color: #fff;
+  margin: 0 0 8px;
+  background: var(--brand);   
+  box-shadow: var(--shadow);
+}
+
+/* ===== (Legacy) header background pseudo — width constrained to header ===== */
+.site-header::before{
+  width: 100%;
+  left: 0;
+}
+
+/* ===== Header layout (title + controls) ===== */
+.site-header .container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 16px 24px;
+}
+
+/* ===== App title ===== */
+.app-title{
+  margin: 0 0 6px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  font-size: clamp(28px, 3.2vw, 44px);
+  text-align: center;
+}
+
+/* ===== Controls row (search + sort) ===== */
+.controls{ display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* ===== Inputs (search + sort) ===== */
+.search, .sort{
+  background: #fff;
+  color: #111;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 16px;
+  outline: none;
+}
+
+/* ===== Input focus ring ===== */
+.search:focus, .sort:focus{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* ===== Responsive card grid (auto-fit by container width) ===== */
+.grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  padding: 26px 0 18px;
+}
+
+/* ===== Movie card ===== */
+.card{
+  background: var(--panel);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+/* ===== Poster wrapper padding ===== */
+.poster-wrap{ padding: 16px 16px 0; }
+
+/* ===== Poster image ===== */
+.poster{
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  pointer-events: none;
+}
+
+/* ===== Card body ===== */
+.card-body{ padding: 14px 16px 16px; }
+
+/* ===== Movie title text ===== */
+.title{ margin: 10px 0 6px; font-size: 18px; font-weight: 800; }
+
+/* ===== Meta text (release, rating) ===== */
+.meta{ margin: 6px 0; color: var(--muted); }
+
+/* ===== Pagination bar ===== */
+.pagination{
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 18px 0 36px;
+}
+
+/* ===== Button base ===== */
+.btn{
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ===== Button hover ===== */
+.btn:hover{ background: #f3f4f6; border-color: #cdd3d9; }
+
+/* ===== Button disabled ===== */
+.btn:disabled{ opacity: .5; cursor: not-allowed; }
+
+/* ===== Pagination page label ===== */
+.page-label{ color: var(--muted); min-width: 150px; text-align: center; }
+
+/* ===== Footer ===== */
+.site-footer{ padding: 8px 0 28px; color: var(--muted); }
+
+/* ===== Footer note text ===== */
+.footnote{ margin: 0; }
+
+/* ===== Resizable vertical handle ===== */
+.splitter{
+  position: absolute;
+  top: 0;
+  left: var(--appw);
+  width: 32px;         
+  height: 100%;
+  margin-left: -16px;  
+  cursor: ew-resize;
+  z-index: 20;
+  touch-action: none;
+  background: linear-gradient(#0000, #0001 20%, #0002 40%, #0002 60%, #0001 80%, #0000);
+}
+
+/* ===== Handle visual bar ===== */
+.splitter::after{
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 32px;
+  transform: translate(-50%, -50%);
+  border-radius: 2px;
+  background: #cbd5e1;
+}
