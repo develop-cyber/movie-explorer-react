@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { tmdb } from "./lib/tmdb";
 
-const TMDB_API_KEY = "264fcd3be965ce2562b7980ae4702deb";
-const TMDB_BASE = "https://api.themoviedb.org/3";
+//const TMDB_API_KEY = "264fcd3be965ce2562b7980ae4702deb";
+//const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w342";
 const FALLBACK_POSTER = "";
 const PAGE_LIMIT = 500;
@@ -27,30 +28,25 @@ export default function App() {
   const draggingRef = useRef(false);
   const debounceRef = useRef(0);
 
-  const url = useMemo(() => {
-    const p = new URLSearchParams();
-    p.set("api_key", TMDB_API_KEY);
-    p.set("language", "en-US");
-    p.set("page", String(page));
-
-    if (mode === "discover") {
-      p.set("include_adult", "false");
-      p.set("include_video", "false");
-      if (sortBy) p.set("sort_by", sortBy);
-      return `${TMDB_BASE}/discover/movie?${p}`;
-    } else {
-      p.set("include_adult", "false");
-      p.set("query", query);
-      return `${TMDB_BASE}/search/movie?${p}`;
-    }
-  }, [page, sortBy, mode, query]);
-
-  async function fetchNow() {
-    const res = await fetch(url);
-    const data = await res.json();
-    setTP(Math.min(PAGE_LIMIT, data.total_pages || 1));
-    setMovies(data.results || []);
+const req = useMemo(() => {
+  const params = { language: "en-US", page: String(page), include_adult: "false" };
+  if (mode === "discover") {
+    if (sortBy) params.sort_by = sortBy;
+    params.include_video = "false";
+    return { path: "discover/movie", params };
+  } else {
+    params.query = query;
+    return { path: "search/movie", params };
   }
+}, [page, sortBy, mode, query]);
+
+
+async function fetchNow() {
+  const data = await tmdb(req.path, req.params);
+  setTP(Math.min(PAGE_LIMIT, data.total_pages || 1));
+  setMovies(data.results || []);
+}
+
 
   useEffect(() => {
     if (query.trim()) {
@@ -62,12 +58,13 @@ export default function App() {
     }
   }, [query]);
 
-  useEffect(() => {
-    window.clearTimeout(debounceRef.current);
-    const delay = mode === "search" ? 350 : 0;
-    debounceRef.current = window.setTimeout(fetchNow, delay);
-    return () => window.clearTimeout(debounceRef.current);
-  }, [url, mode]);
+useEffect(() => {
+  window.clearTimeout(debounceRef.current);
+  const delay = mode === "search" ? 350 : 0;
+  debounceRef.current = window.setTimeout(fetchNow, delay);
+  return () => window.clearTimeout(debounceRef.current);
+}, [req, mode]);
+
 
   useEffect(() => {
     const stageEl = stageRef.current;
