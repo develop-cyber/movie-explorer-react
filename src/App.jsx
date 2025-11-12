@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { tmdb } from "./lib/tmdb";
 
-//const TMDB_API_KEY = "264fcd3be965ce2562b7980ae4702deb";
-//const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w342";
 const FALLBACK_POSTER = "";
 const PAGE_LIMIT = 500;
@@ -17,7 +15,7 @@ function formatRating(n) {
 export default function App() {
   const [page, setPage] = useState(1);
   const [totalPages, setTP] = useState(1);
-  const [mode, setMode] = useState("discover");
+  const [mode, setMode] = useState("discover"); // "discover" | "search"
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [movies, setMovies] = useState([]);
@@ -28,25 +26,24 @@ export default function App() {
   const draggingRef = useRef(false);
   const debounceRef = useRef(0);
 
-const req = useMemo(() => {
-  const params = { language: "en-US", page: String(page), include_adult: "false" };
-  if (mode === "discover") {
-    if (sortBy) params.sort_by = sortBy;
-    params.include_video = "false";
-    return { path: "discover/movie", params };
-  } else {
-    params.query = query;
-    return { path: "search/movie", params };
+  // Build a request description for our proxy
+  const req = useMemo(() => {
+    const params = { language: "en-US", page: String(page), include_adult: "false" };
+    if (mode === "discover") {
+      if (sortBy) params.sort_by = sortBy;
+      params.include_video = "false";
+      return { path: "discover/movie", params };
+    } else {
+      params.query = query;
+      return { path: "search/movie", params };
+    }
+  }, [page, sortBy, mode, query]);
+
+  async function fetchNow() {
+    const data = await tmdb(req.path, req.params);
+    setTP(Math.min(PAGE_LIMIT, data.total_pages || 1));
+    setMovies(data.results || []);
   }
-}, [page, sortBy, mode, query]);
-
-
-async function fetchNow() {
-  const data = await tmdb(req.path, req.params);
-  setTP(Math.min(PAGE_LIMIT, data.total_pages || 1));
-  setMovies(data.results || []);
-}
-
 
   useEffect(() => {
     if (query.trim()) {
@@ -58,14 +55,14 @@ async function fetchNow() {
     }
   }, [query]);
 
-useEffect(() => {
-  window.clearTimeout(debounceRef.current);
-  const delay = mode === "search" ? 350 : 0;
-  debounceRef.current = window.setTimeout(fetchNow, delay);
-  return () => window.clearTimeout(debounceRef.current);
-}, [req, mode]);
+  useEffect(() => {
+    window.clearTimeout(debounceRef.current);
+    const delay = mode === "search" ? 350 : 0;
+    debounceRef.current = window.setTimeout(fetchNow, delay);
+    return () => window.clearTimeout(debounceRef.current);
+  }, [req, mode]);
 
-
+  // Draggable splitter
   useEffect(() => {
     const stageEl = stageRef.current;
     const handle = splitterRef.current;
